@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth, RegisterData } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
-import { User, Mail, Lock, MapPin, Sparkles, Plus, X, ArrowRight, AlertCircle, Check } from 'lucide-react';
+import { ProfilePictureModal } from '../components/profile/ProfilePictureModal';
+import { User, Mail, Lock, MapPin, Sparkles, Plus, X, ArrowRight, AlertCircle, Check, Camera, Upload } from 'lucide-react';
 
 interface RegisterPageProps {
   onNavigate: (tab: string) => void;
@@ -39,6 +40,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const addTeachSkill = () => {
     const val = newTeachInput.trim();
@@ -136,31 +138,66 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Avatar Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              Select Profile Avatar
-            </label>
-            <div className="flex flex-wrap items-center gap-3">
-              {PRESET_AVATARS.map((av, idx) => (
-                <button
-                  type="button"
-                  key={idx}
-                  onClick={() => setFormData({ ...formData, avatar: av })}
-                  className={`relative rounded-full p-0.5 transition-transform ${
-                    formData.avatar === av ? 'ring-3 ring-brand-500 scale-105' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={av}
-                    alt="avatar"
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200"
-                  />
-                  {formData.avatar === av && (
-                    <span className="absolute bottom-0 right-0 bg-brand-600 text-white p-0.5 rounded-full">
-                      <Check className="w-3 h-3" />
-                    </span>
-                  )}
-                </button>
-              ))}
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Profile Photo *
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(true)}
+                className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>Upload Photo / Take Selfie</span>
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 p-3 bg-slate-50/70 rounded-2xl border border-slate-200">
+              {/* Active Selected Avatar with click to customize */}
+              <div
+                onClick={() => setIsAvatarModalOpen(true)}
+                className="relative cursor-pointer group shrink-0"
+                title="Click to customize profile picture"
+              >
+                <img
+                  src={formData.avatar}
+                  alt="Selected avatar"
+                  className="w-14 h-14 rounded-full object-cover border-3 border-brand-500 shadow-md group-hover:scale-105 transition-transform"
+                />
+                <span className="absolute bottom-0 right-0 bg-brand-600 text-white p-1 rounded-full shadow-xs">
+                  <Camera className="w-3 h-3" />
+                </span>
+              </div>
+
+              {/* Presets Row */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold text-slate-500 mb-1.5">
+                  Or pick a neighborhood preset:
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {PRESET_AVATARS.map((av, idx) => (
+                    <button
+                      type="button"
+                      key={idx}
+                      onClick={() => setFormData({ ...formData, avatar: av })}
+                      className={`relative rounded-full p-0.5 transition-transform ${
+                        formData.avatar === av ? 'ring-3 ring-brand-500 scale-105' : 'opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={av}
+                        alt="avatar"
+                        className="w-9 h-9 rounded-full object-cover border border-slate-200"
+                      />
+                      {formData.avatar === av && (
+                        <span className="absolute bottom-0 right-0 bg-brand-600 text-white p-0.5 rounded-full">
+                          <Check className="w-2.5 h-2.5" />
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -395,6 +432,17 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Custom Profile Photo Modal */}
+        <ProfilePictureModal
+          currentAvatar={formData.avatar}
+          isOpen={isAvatarModalOpen}
+          onClose={() => setIsAvatarModalOpen(false)}
+          onSaveAvatar={(newAv) => {
+            setFormData({ ...formData, avatar: newAv });
+            showToast('Photo Selected! 📸', 'Your profile picture is ready.', 'info');
+          }}
+        />
 
         <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
           Already a member?{' '}

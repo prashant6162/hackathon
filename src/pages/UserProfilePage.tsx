@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { LearningMode } from '../types';
+import { ProfilePictureModal } from '../components/profile/ProfilePictureModal';
 import {
   User,
   MapPin,
@@ -13,6 +14,9 @@ import {
   Navigation,
   CheckCircle2,
   AlertCircle,
+  Camera,
+  Star,
+  Award,
 } from 'lucide-react';
 
 interface UserProfilePageProps {
@@ -52,6 +56,7 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({ onNavigate }) 
     currentUser.latitude ? 'Location set (approximate)' : 'Not shared'
   );
   const [saving, setSaving] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const handleAddTeach = () => {
     const val = newTeach.trim();
@@ -115,6 +120,11 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({ onNavigate }) 
     showToast('Profile Saved!', 'Your changes are live.', 'success');
   };
 
+  const handleSaveNewAvatar = async (newAvatarUrl: string) => {
+    await updateUserProfile({ avatar: newAvatarUrl });
+    showToast('Profile Picture Updated! 📸', 'Your new photo is now active everywhere across SkillConnect.', 'success');
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <div>
@@ -124,25 +134,57 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({ onNavigate }) 
         </div>
         <h1 className="text-3xl font-black text-slate-900 mt-0.5">Profile & Preferences</h1>
         <p className="text-xs text-slate-500 mt-1">
-          Update the skills you offer and want to learn to tune your local matching algorithm.
+          Customize your profile photo, skills offered, and learning interests.
         </p>
       </div>
 
       <form onSubmit={handleSaveProfile} className="space-y-6">
-        {/* Basic Info */}
+        {/* Basic Info & Interactive Avatar Card */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xs space-y-5">
-          <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-16 h-16 rounded-full object-cover border-2 border-brand-500 shadow-xs"
-            />
-            <div>
-              <h3 className="text-base font-bold text-slate-900">{currentUser.name}</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-6 border-b border-slate-100">
+            {/* Interactive Avatar With Hover Overlay */}
+            <div
+              className="relative group cursor-pointer self-start"
+              onClick={() => setIsAvatarModalOpen(true)}
+              title="Click to change your profile picture"
+            >
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-24 h-24 rounded-full object-cover border-4 border-brand-500 shadow-lg group-hover:scale-102 transition-transform"
+              />
+              <div className="absolute inset-0 rounded-full bg-slate-950/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-bold transition-opacity">
+                <Camera className="w-6 h-6 mb-0.5" />
+                <span>Change</span>
+              </div>
+              <button
+                type="button"
+                className="absolute bottom-0 right-0 p-2 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-md border-2 border-white transition-transform group-hover:scale-110"
+                title="Change profile picture"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-black text-slate-900">{currentUser.name}</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-brand-50 text-brand-800 rounded-md border border-brand-200">
+                  {currentUser.role === 'admin' ? 'Community Admin' : 'Verified Member'}
+                </span>
+              </div>
               <p className="text-xs text-slate-500">{currentUser.email}</p>
-              <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 bg-brand-50 text-brand-700 rounded-md">
-                ★ {currentUser.rating.toFixed(1)} Rating • {currentUser.reviewCount} Reviews
-              </span>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAvatarModalOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Camera className="w-3.5 h-3.5 text-brand-600" />
+                  <span>Update Photo (Upload, Camera, Presets)</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -334,6 +376,14 @@ export const UserProfilePage: React.FC<UserProfilePageProps> = ({ onNavigate }) 
           </button>
         </div>
       </form>
+
+      {/* Profile Picture Management Modal */}
+      <ProfilePictureModal
+        currentAvatar={currentUser.avatar}
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        onSaveAvatar={handleSaveNewAvatar}
+      />
     </div>
   );
 };

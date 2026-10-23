@@ -169,6 +169,60 @@ export async function updateUser(user: User): Promise<void> {
     users.push(user);
   }
   setLocalItem(STORAGE_KEYS.USERS, users);
+
+  // Cascade avatar & name updates across skills, bookings, requests, reviews
+  try {
+    const skills = getLocalItem<Skill[]>(STORAGE_KEYS.SKILLS, INITIAL_SKILLS);
+    let skillsChanged = false;
+    skills.forEach((s) => {
+      if (s.teacherId === user.id) {
+        s.teacherName = user.name;
+        s.teacherAvatar = user.avatar;
+        skillsChanged = true;
+      }
+    });
+    if (skillsChanged) setLocalItem(STORAGE_KEYS.SKILLS, skills);
+
+    const bookings = getLocalItem<Booking[]>(STORAGE_KEYS.BOOKINGS, INITIAL_BOOKINGS);
+    let bookingsChanged = false;
+    bookings.forEach((b) => {
+      if (b.teacherId === user.id) {
+        b.teacherName = user.name;
+        b.teacherAvatar = user.avatar;
+        bookingsChanged = true;
+      }
+      if (b.learnerId === user.id) {
+        b.learnerName = user.name;
+        b.learnerAvatar = user.avatar;
+        bookingsChanged = true;
+      }
+    });
+    if (bookingsChanged) setLocalItem(STORAGE_KEYS.BOOKINGS, bookings);
+
+    const requests = getLocalItem<SkillRequest[]>(STORAGE_KEYS.REQUESTS, INITIAL_SKILL_REQUESTS);
+    let requestsChanged = false;
+    requests.forEach((r) => {
+      if (r.requesterId === user.id) {
+        r.requesterName = user.name;
+        r.requesterAvatar = user.avatar;
+        requestsChanged = true;
+      }
+    });
+    if (requestsChanged) setLocalItem(STORAGE_KEYS.REQUESTS, requests);
+
+    const reviews = getLocalItem<Review[]>(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
+    let reviewsChanged = false;
+    reviews.forEach((rv) => {
+      if (rv.learnerId === user.id) {
+        rv.learnerName = user.name;
+        rv.learnerAvatar = user.avatar;
+        reviewsChanged = true;
+      }
+    });
+    if (reviewsChanged) setLocalItem(STORAGE_KEYS.REVIEWS, reviews);
+  } catch (err) {
+    console.error('Error cascading user profile updates', err);
+  }
 }
 
 export async function toggleSaveSkill(userId: string, skillId: string): Promise<boolean> {
