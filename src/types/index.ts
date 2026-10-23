@@ -82,6 +82,7 @@ export interface Skill {
   maxLearners: number;
   prerequisites: string;
   tags: string[];
+  creditCost?: number;
   rating: number;
   reviewCount: number;
   viewsCount?: number;
@@ -90,6 +91,7 @@ export interface Skill {
 }
 
 export type BookingStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'completed';
+export type BookingType = 'barter' | 'credit' | 'sponsored';
 
 export interface Booking {
   id: string;
@@ -108,6 +110,11 @@ export interface Booking {
   message: string;
   isBarterExchange: boolean;
   proposedBarterSkill?: string;
+  bookingType?: BookingType;
+  creditCost?: number;
+  sponsoredReason?: string;
+  creditsDeducted?: boolean;
+  creditsAwarded?: boolean;
   status: BookingStatus;
   meetingLink?: string;
   meetingVenue?: string;

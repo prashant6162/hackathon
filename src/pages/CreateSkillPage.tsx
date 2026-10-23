@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle2,
+  Coins,
 } from 'lucide-react';
 
 interface CreateSkillPageProps {
@@ -69,6 +70,7 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
   const [maxLearners, setMaxLearners] = useState<number>(initialSkill?.maxLearners || 2);
   const [prerequisites, setPrerequisites] = useState(initialSkill?.prerequisites || '');
   const [tagsInput, setTagsInput] = useState(initialSkill?.tags.join(', ') || '');
+  const [creditCost, setCreditCost] = useState<number>(initialSkill?.creditCost ?? 10);
 
   const [slots, setSlots] = useState<TimeSlot[]>(
     initialSkill?.availableSlots || [
@@ -95,6 +97,7 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
       setMaxLearners(initialSkill.maxLearners);
       setPrerequisites(initialSkill.prerequisites);
       setTagsInput(initialSkill.tags.join(', '));
+      setCreditCost(initialSkill.creditCost ?? 10);
       setSlots(initialSkill.availableSlots);
     }
   }, [initialSkill]);
@@ -168,6 +171,7 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
           maxLearners: Number(maxLearners),
           prerequisites: prerequisites.trim(),
           tags: tagsArray.length > 0 ? tagsArray : [category],
+          creditCost: Number(creditCost),
         };
         await updateSkill(updated);
         showToast('Skill Updated!', 'Your listing changes have been saved.', 'success');
@@ -192,6 +196,7 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
           maxLearners: Number(maxLearners),
           prerequisites: prerequisites.trim(),
           tags: tagsArray.length > 0 ? tagsArray : [category, 'Neighborhood Skill'],
+          creditCost: Number(creditCost),
         });
 
         showToast(
@@ -227,7 +232,7 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
             {isEditing ? 'Edit Skill Listing' : 'Publish a New Skill'}
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Offer your knowledge to neighbors with zero monetary charges.
+            Offer your knowledge — earn credits when you teach, or enable direct skill barter.
           </p>
         </div>
 
@@ -374,6 +379,30 @@ export const CreateSkillPage: React.FC<CreateSkillPageProps> = ({
                 className="w-full py-2 px-3 text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500"
               />
             </div>
+          </div>
+
+          {/* Credit Cost Per Session */}
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
+            <label className="block text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+              <Coins className="w-4 h-4 text-amber-600" />
+              Credit Cost Per Session
+            </label>
+            <p className="text-xs text-amber-700">
+              Learners spend this many credits to book your session. You earn these credits after each completed session. Barter and sponsored seats bypass this cost.
+            </p>
+            <input
+              type="number"
+              min={1}
+              max={500}
+              step={1}
+              required
+              value={creditCost}
+              onChange={(e) => setCreditCost(Number(e.target.value))}
+              className="w-full py-2 px-3 text-xs rounded-xl border border-amber-300 bg-white focus:ring-2 focus:ring-amber-500 font-bold text-amber-800"
+            />
+            <p className="text-xs text-amber-600 font-medium">
+              💡 Suggested: 10 credits for a 60-min session. New users receive 20 free starter credits.
+            </p>
           </div>
 
           {/* Prerequisites */}

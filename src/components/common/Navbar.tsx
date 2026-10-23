@@ -22,7 +22,9 @@ import {
   MapPin,
   HelpCircle,
   Users,
+  Coins,
 } from 'lucide-react';
+import { getWallet, subscribeToCreditChanges } from '../../services/creditService';
 
 interface NavbarProps {
   currentTab: string;
@@ -37,6 +39,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isDemoSwitcherOpen, setIsDemoSwitcherOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [creditBalance, setCreditBalance] = useState<number>(0);
+
+  useEffect(() => {
+    if (currentUser) {
+      setCreditBalance(getWallet(currentUser.id).balance);
+      const unsub = subscribeToCreditChanges(() => {
+        setCreditBalance(getWallet(currentUser.id).balance);
+      });
+      return unsub;
+    }
+  }, [currentUser]);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -223,6 +236,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
               )}
             </div>
 
+            {/* Credit Wallet Pill */}
+            {currentUser && (
+              <button
+                onClick={() => onNavigate('dashboard')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300/80 text-amber-950 font-bold text-xs shadow-2xs transition-all"
+                title="Your Skill Credit Wallet & Refill Packages"
+              >
+                <Coins className="w-3.5 h-3.5 text-amber-600" />
+                <span>
+                  {creditBalance} <span className="hidden sm:inline">Credits</span>
+                </span>
+              </button>
+            )}
+
             {/* Offer a Skill CTA */}
             {currentUser && (
               <button
@@ -334,6 +361,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                         <MapPin className="w-3 h-3 text-brand-600" />
                         <span className="truncate">{currentUser.locality}</span>
                       </div>
+                    </div>
+
+                    <div className="mx-3 my-2 p-2.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
+                        <Coins className="w-4 h-4 text-amber-600" />
+                        <span>Credit Wallet</span>
+                      </div>
+                      <span className="text-xs font-black text-amber-900 bg-white px-2 py-0.5 rounded-lg border border-amber-200">
+                        {creditBalance} pts
+                      </span>
                     </div>
 
                     <div className="py-1">

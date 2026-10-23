@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Skill, SkillRequest, SkillCircle } from '../types';
+import { Skill, SkillRequest, SkillCircle, BookingType } from '../types';
 import { getSkills, getSkillRequests, getSkillCircles } from '../services/storageService';
 import { SkillCard } from '../components/skills/SkillCard';
 import { LeafletMap } from '../components/map/LeafletMap';
@@ -20,7 +20,7 @@ import {
 
 interface LandingPageProps {
   onNavigate: (tab: string, param?: string) => void;
-  onEnrollSkill: (skill: Skill) => void;
+  onEnrollSkill: (skill: Skill, mode?: BookingType) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onEnrollSkill }) => {
@@ -127,7 +127,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, onEnrollSk
               key={skill.id}
               skill={skill}
               onViewDetails={(id) => onNavigate('skill-detail', id)}
-              onEnrollClick={(sk) => onEnrollSkill(sk)}
+              onEnrollClick={(sk, mode) => onEnrollSkill(sk, mode)}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Skill, Review, MatchResult } from '../types';
+import { Skill, Review, MatchResult, BookingType } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { getSkillById, getReviewsForSkill, deleteSkill, toggleSaveSkill } from '../services/storageService';
@@ -28,13 +28,15 @@ import {
   Award,
   BookOpen,
   Share2,
+  Coins,
+  Gift,
 } from 'lucide-react';
 
 interface SkillDetailPageProps {
   skillId: string;
   onBack: () => void;
   onEditSkill: (skill: Skill) => void;
-  onEnrollSkill: (skill: Skill) => void;
+  onEnrollSkill: (skill: Skill, mode?: BookingType) => void;
   onNavigate: (tab: string, param?: string) => void;
 }
 
@@ -202,6 +204,10 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({
             <span className="flex items-center gap-1.5 font-semibold">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
               {skill.rating.toFixed(1)} ({skill.reviewCount} verified reviews)
+            </span>
+            <span className="flex items-center gap-1.5 font-bold text-amber-300 bg-amber-500/20 px-2.5 py-1 rounded-lg border border-amber-400/30">
+              <Coins className="w-4 h-4 text-amber-300 shrink-0" />
+              {skill.creditCost ?? 10} Credits / Session
             </span>
           </div>
         </div>
@@ -442,14 +448,35 @@ export const SkillDetailPage: React.FC<SkillDetailPageProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="space-y-2 pt-2">
+              <div className="space-y-2.5 pt-2">
+                {/* Credit Booking CTA */}
                 <button
-                  onClick={() => onEnrollSkill(skill)}
-                  className="w-full py-3.5 px-4 rounded-2xl text-xs font-black text-white bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center gap-2"
+                  onClick={() => onEnrollSkill(skill, 'credit')}
+                  className="w-full py-3.5 px-4 rounded-2xl text-xs font-black text-amber-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-2"
                 >
-                  <Repeat className="w-4 h-4" />
-                  <span>Request Session / Barter Swap</span>
+                  <Coins className="w-4 h-4 text-amber-900" />
+                  <span>Book with Credits ({skill.creditCost ?? 10} Credits)</span>
                 </button>
+
+                {/* Direct Barter CTA */}
+                <button
+                  onClick={() => onEnrollSkill(skill, 'barter')}
+                  className="w-full py-3 px-4 rounded-2xl text-xs font-bold text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 transition-all flex items-center justify-center gap-2"
+                >
+                  <Repeat className="w-4 h-4 text-emerald-700" />
+                  <span>Exchange Skills (Direct 0-Credit Barter)</span>
+                </button>
+
+                {/* Sponsored Option Link */}
+                <div className="text-center pt-0.5">
+                  <button
+                    onClick={() => onEnrollSkill(skill, 'sponsored')}
+                    className="text-[11px] font-semibold text-ocean-700 hover:text-ocean-900 underline transition-colors"
+                  >
+                    Zero credits? Request Community-Sponsored Seat →
+                  </button>
+                </div>
+
                 <button
                   onClick={() => onNavigate('messages', skill.teacherId)}
                   className="w-full py-2.5 px-4 rounded-2xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Skill, SkillCategory, MatchResult } from '../types';
+import { Skill, SkillCategory, MatchResult, BookingType } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { getSkills } from '../services/storageService';
 import { rankSkillsForUser, computeSkillMatch } from '../services/matchingAlgorithm';
@@ -11,7 +11,7 @@ import { LayoutGrid, Map, Compass, RotateCcw } from 'lucide-react';
 
 interface ExploreSkillsPageProps {
   onNavigate: (tab: string, param?: string) => void;
-  onEnrollSkill: (skill: Skill) => void;
+  onEnrollSkill: (skill: Skill, mode?: BookingType) => void;
 }
 
 const CATEGORIES: SkillCategory[] = [
@@ -220,7 +220,7 @@ export const ExploreSkillsPage: React.FC<ExploreSkillsPageProps> = ({
                     skill={skill}
                     match={match}
                     onViewDetails={(id) => onNavigate('skill-detail', id)}
-                    onEnrollClick={(sk) => onEnrollSkill(sk)}
+                    onEnrollClick={(sk, mode) => onEnrollSkill(sk, mode)}
                   />
                 ))}
               </div>

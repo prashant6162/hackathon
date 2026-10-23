@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useNotifications } from './context/NotificationContext';
-import { Skill } from './types';
+import { Skill, BookingType } from './types';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { ToastContainer } from './components/common/Toast';
@@ -36,6 +36,7 @@ export const App: React.FC = () => {
 
   // Global Booking Modal state
   const [selectedSkillForBooking, setSelectedSkillForBooking] = useState<Skill | null>(null);
+  const [bookingInitialMode, setBookingInitialMode] = useState<BookingType>('credit');
 
   // Demo banner visibility
   const [showDemoBanner, setShowDemoBanner] = useState(true);
@@ -70,12 +71,13 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleEnrollSkill = (skill: Skill) => {
+  const handleEnrollSkill = (skill: Skill, mode: BookingType = 'credit') => {
     if (!currentUser) {
       showToast('Sign In Required', 'Please sign in to book a session.', 'info');
       setCurrentTab('login');
       return;
     }
+    setBookingInitialMode(mode);
     setSelectedSkillForBooking(skill);
   };
 
@@ -216,6 +218,7 @@ export const App: React.FC = () => {
       <BookingModal
         skill={selectedSkillForBooking}
         isOpen={Boolean(selectedSkillForBooking)}
+        initialMode={bookingInitialMode}
         onClose={() => setSelectedSkillForBooking(null)}
         onSuccess={() => {
           setSelectedSkillForBooking(null);
@@ -224,6 +227,10 @@ export const App: React.FC = () => {
         onRequireLogin={() => {
           setSelectedSkillForBooking(null);
           navigate('login');
+        }}
+        onNavigateToWallet={() => {
+          setSelectedSkillForBooking(null);
+          navigate('dashboard');
         }}
       />
 

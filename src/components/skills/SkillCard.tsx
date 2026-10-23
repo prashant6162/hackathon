@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Skill, MatchResult } from '../../types';
+import { Skill, MatchResult, BookingType } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { toggleSaveSkill } from '../../services/storageService';
@@ -8,20 +8,21 @@ import {
   Star,
   MapPin,
   Clock,
-  Users,
+  Calendar,
   ArrowRight,
   Sparkles,
   Repeat,
   Bookmark,
   ShieldCheck,
   Eye,
+  Coins,
 } from 'lucide-react';
 
 interface SkillCardProps {
   skill: Skill;
   match?: MatchResult;
   onViewDetails: (skillId: string) => void;
-  onEnrollClick?: (skill: Skill) => void;
+  onEnrollClick?: (skill: Skill, mode?: BookingType) => void;
 }
 
 export const SkillCard: React.FC<SkillCardProps> = ({
@@ -137,19 +138,19 @@ export const SkillCard: React.FC<SkillCardProps> = ({
           </div>
         </div>
 
-        {/* Schedule & Duration Meta */}
+        {/* Schedule, Slots & Credit Meta */}
         <div className="px-5 py-2.5 bg-slate-50 border-y border-slate-100 flex items-center justify-between text-xs text-slate-600">
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
             <span>{skill.durationMinutes} mins</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-slate-400" />
-            <span>Up to {skill.maxLearners} learners</span>
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+            <span>{skill.availableSlots.length} open slots</span>
           </div>
-          <div className="flex items-center gap-1 text-[11px] text-slate-400">
-            <Eye className="w-3 h-3" />
-            <span>{skill.viewsCount || 120}</span>
+          <div className="flex items-center gap-1 font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
+            <Coins className="w-3.5 h-3.5 text-amber-600" />
+            <span>{skill.creditCost ?? 10} pts</span>
           </div>
         </div>
       </div>
@@ -194,31 +195,49 @@ export const SkillCard: React.FC<SkillCardProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => onViewDetails(skill.id)}
-            className="w-full py-2.5 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors text-center"
-          >
-            Curriculum & Details
-          </button>
-
-          {isOwner ? (
+        {isOwner ? (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => onViewDetails(skill.id)}
+              className="w-full py-2.5 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors text-center"
+            >
+              Curriculum & Details
+            </button>
             <button
               onClick={() => onViewDetails(skill.id)}
               className="w-full py-2.5 px-3 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 border border-brand-200 hover:bg-brand-100 transition-colors text-center"
             >
               Manage Listing
             </button>
-          ) : (
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => (onEnrollClick ? onEnrollClick(skill, 'credit') : onViewDetails(skill.id))}
+                className="w-full py-2.5 px-2 rounded-xl text-xs font-bold text-amber-950 bg-amber-50 hover:bg-amber-100 border border-amber-300 shadow-2xs transition-all text-center flex items-center justify-center gap-1.5"
+                title="Enroll using credits"
+              >
+                <Coins className="w-3.5 h-3.5 text-amber-600" />
+                <span>Book with Credits</span>
+              </button>
+              <button
+                onClick={() => (onEnrollClick ? onEnrollClick(skill, 'barter') : onViewDetails(skill.id))}
+                className="w-full py-2.5 px-2 rounded-xl text-xs font-bold text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 shadow-2xs transition-all text-center flex items-center justify-center gap-1.5"
+                title="Exchange skills directly (0 credits)"
+              >
+                <Repeat className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Exchange Skills</span>
+              </button>
+            </div>
             <button
-              onClick={() => (onEnrollClick ? onEnrollClick(skill) : onViewDetails(skill.id))}
-              className="w-full py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition-all text-center flex items-center justify-center gap-1"
+              onClick={() => onViewDetails(skill.id)}
+              className="w-full py-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition-colors text-center"
             >
-              <span>Enroll / Barter</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              View Curriculum & Available Slots →
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

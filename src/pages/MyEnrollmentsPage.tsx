@@ -19,6 +19,8 @@ import {
   Star,
   ArrowRight,
   Video,
+  Coins,
+  Gift,
 } from 'lucide-react';
 
 interface MyEnrollmentsPageProps {
@@ -190,7 +192,21 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
                     </span>
                   </div>
 
-                  {b.isBarterExchange && b.proposedBarterSkill && (
+                  {b.bookingType === 'credit' && (
+                    <div className="inline-flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 font-medium mt-1">
+                      <Coins className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Credit Enrollment: {b.creditCost || 10} Credits</span>
+                    </div>
+                  )}
+
+                  {b.bookingType === 'sponsored' && (
+                    <div className="inline-flex items-center gap-1.5 text-xs text-ocean-900 bg-ocean-50 px-2.5 py-1 rounded-md border border-ocean-200 font-medium mt-1">
+                      <Gift className="w-3.5 h-3.5 text-ocean-600" />
+                      <span>Sponsored Learning: Free Community Seat</span>
+                    </div>
+                  )}
+
+                  {(b.bookingType === 'barter' || b.isBarterExchange) && b.proposedBarterSkill && (
                     <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 font-medium mt-1">
                       <Repeat className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Barter trade: You offered "{b.proposedBarterSkill}"</span>

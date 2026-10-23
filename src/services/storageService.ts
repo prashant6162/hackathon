@@ -22,6 +22,14 @@ import {
 import { isFirebaseConfigured, db } from '../config/firebase';
 import { sounds } from './soundService';
 import {
+  getWallet,
+  spendCredits,
+  awardTeachingCredits,
+  refundCredits,
+  initializeDemoWallets,
+  resetCreditData,
+} from './creditService';
+import {
   collection,
   doc,
   getDocs,
@@ -118,6 +126,7 @@ export function initializeStorageIfNeeded(): void {
   if (!localStorage.getItem(STORAGE_KEYS.CIRCLES)) {
     setLocalItem(STORAGE_KEYS.CIRCLES, INITIAL_SKILL_CIRCLES);
   }
+  initializeDemoWallets();
 }
 
 export function resetDemoDataToDefaults(): void {
@@ -129,6 +138,7 @@ export function resetDemoDataToDefaults(): void {
   localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(INITIAL_MESSAGES));
   localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(INITIAL_SKILL_REQUESTS));
   localStorage.setItem(STORAGE_KEYS.CIRCLES, JSON.stringify(INITIAL_SKILL_CIRCLES));
+  resetCreditData();
   notifyDataChanged();
 }
 
@@ -419,15 +429,36 @@ export async function createBooking(
     };
   }
 
+  const bookingType = bookingData.bookingType || (bookingData.isBarterExchange ? 'barter' : 'credit');
+  const creditCost = bookingData.creditCost ?? 10;
+
+  // Validate balance if booking with credits
+  if (bookingType === 'credit') {
+    const wallet = getWallet(bookingData.learnerId);
+    if (wallet.balance < creditCost) {
+      return {
+        success: false,
+        error: `Insufficient credits. You need ${creditCost} credits, but your current balance is ${wallet.balance} credits.`,
+      };
+    }
+  }
+
   const newBooking: Booking = {
     ...bookingData,
     id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
     status: 'pending',
+    bookingType,
+    creditCost,
+    sponsoredReason: bookingData.sponsoredReason,
+    creditsDeducted: false,
+    creditsAwarded: false,
     meetingLink: bookingData.mode === 'in-person' ? undefined : `https://meet.skillconnect.local/room-${Math.random().toString(36).substr(2, 6)}`,
     meetingVenue: bookingData.meetingVenue || 'Designated Community Center / Park Pavilion',
-    sessionNotes: bookingData.isBarterExchange
+    sessionNotes: bookingType === 'barter'
       ? `Mutual Barter Agreement: Proposing to exchange ${bookingData.proposedBarterSkill || 'reciprocal mentorship'} for this session.`
-      : 'Standard free community learning session.',
+      : bookingType === 'sponsored'
+      ? `Sponsored Learning Request: Community-supported seat request (${bookingData.sponsoredReason || 'Learning grant'}). 0 credits required.`
+      : `Credit-Based Learning: ${creditCost} credits enrolled.`,
     createdAt: new Date().toISOString(),
   };
 
@@ -481,8 +512,22 @@ export async function updateBookingStatus(
   setLocalItem(STORAGE_KEYS.BOOKINGS, bookings);
   sounds.playChime();
 
-  // Send relevant notification
+  // Send relevant notification and handle credit transactions
   if (newStatus === 'accepted') {
+    if (b.bookingType === 'credit' && !b.creditsDeducted) {
+      const deduction = spendCredits(
+        b.learnerId,
+        b.creditCost || 10,
+        b.id,
+        b.skillTitle,
+        b.teacherName
+      );
+      if (deduction.success) {
+        b.creditsDeducted = true;
+      } else {
+        console.warn('Credit deduction note:', deduction.error);
+      }
+    }
     await createNotification({
       userId: b.learnerId,
       title: 'Booking Confirmed! 🎉',
@@ -491,6 +536,10 @@ export async function updateBookingStatus(
       link: '/enrollments',
     });
   } else if (newStatus === 'rejected') {
+    if (b.bookingType === 'credit' && b.creditsDeducted) {
+      refundCredits(b.learnerId, b.creditCost || 10, b.id, b.skillTitle);
+      b.creditsDeducted = false;
+    }
     await createNotification({
       userId: b.learnerId,
       title: 'Booking Update',
@@ -499,6 +548,17 @@ export async function updateBookingStatus(
       link: '/explore',
     });
   } else if (newStatus === 'completed') {
+    if (!b.creditsAwarded) {
+      const rewardCredits = b.creditCost || 10;
+      awardTeachingCredits(
+        b.teacherId,
+        rewardCredits,
+        b.id,
+        b.skillTitle,
+        b.learnerName
+      );
+      b.creditsAwarded = true;
+    }
     await createNotification({
       userId: b.learnerId,
       title: 'Session Marked Completed 🎓',
@@ -506,7 +566,18 @@ export async function updateBookingStatus(
       type: 'session_completed',
       link: '/reviews',
     });
+    await createNotification({
+      userId: b.teacherId,
+      title: 'Teaching Credits Earned! 🪙',
+      message: `You earned ${b.creditCost || 10} credits for completing "${b.skillTitle}" with ${b.learnerName}!`,
+      type: 'system',
+      link: '/dashboard',
+    });
   } else if (newStatus === 'cancelled') {
+    if (b.bookingType === 'credit' && b.creditsDeducted) {
+      refundCredits(b.learnerId, b.creditCost || 10, b.id, b.skillTitle);
+      b.creditsDeducted = false;
+    }
     const notifyTarget = actionByUserId === b.learnerId ? b.teacherId : b.learnerId;
     await createNotification({
       userId: notifyTarget,

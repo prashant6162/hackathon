@@ -8,6 +8,7 @@ import {
   updateBookingStatus,
   deleteSkill,
 } from '../services/storageService';
+import { getWallet, subscribeToCreditChanges, CreditWallet } from '../services/creditService';
 import { Badge } from '../components/common/Badge';
 import { SessionRoomModal } from '../components/skills/SessionRoomModal';
 import { EmptyState } from '../components/common/EmptyState';
@@ -26,6 +27,11 @@ import {
   Users,
   Star,
   Video,
+  Coins,
+  Gift,
+  ArrowRight,
+  GraduationCap,
+  Sparkles,
 } from 'lucide-react';
 
 interface MyTeachingSessionsPageProps {
@@ -43,6 +49,13 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
   const [mySkills, setMySkills] = useState<Skill[]>([]);
   const [incomingBookings, setIncomingBookings] = useState<Booking[]>([]);
   const [activeWorkspaceBooking, setActiveWorkspaceBooking] = useState<Booking | null>(null);
+  const [wallet, setWallet] = useState<CreditWallet>({
+    userId: currentUser?.id || '',
+    balance: 0,
+    totalEarned: 0,
+    totalSpent: 0,
+    totalPurchased: 0,
+  });
 
   const loadData = async () => {
     if (!currentUser) return;
@@ -51,10 +64,17 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
 
     const userBookings = await getBookingsForUser(currentUser.id);
     setIncomingBookings(userBookings.asTeacher);
+    setWallet(getWallet(currentUser.id));
   };
 
   useEffect(() => {
     loadData();
+    if (currentUser) {
+      const unsub = subscribeToCreditChanges(() => {
+        setWallet(getWallet(currentUser.id));
+      });
+      return unsub;
+    }
   }, [currentUser]);
 
   if (!currentUser) {
@@ -103,6 +123,8 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
 
   const pendingRequests = incomingBookings.filter((b) => b.status === 'pending');
   const activeConfirmedBookings = incomingBookings.filter((b) => b.status === 'accepted');
+  const completedTeachingSessions = incomingBookings.filter((b) => b.status === 'completed');
+  const totalAvailableSlots = mySkills.reduce((acc, s) => acc + s.availableSlots.length, 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
@@ -126,6 +148,87 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
           <PlusCircle className="w-4 h-4" />
           <span>Offer Another Skill</span>
         </button>
+      </div>
+
+      {/* Teacher Mentorship & Credit Performance Dashboard */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* 1. Teaching Credits Earned */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Credits Earned</span>
+              <Coins className="w-4 h-4 text-amber-500" />
+            </div>
+            <p className="text-2xl font-black text-amber-600">+{wallet.totalEarned}</p>
+            <p className="text-[11px] text-slate-500 mt-1">From completed teaching</p>
+          </div>
+
+          {/* 2. Completed Sessions */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Completed Sessions</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            </div>
+            <p className="text-2xl font-black text-slate-900">{completedTeachingSessions.length}</p>
+            <p className="text-[11px] text-slate-500 mt-1">Mutually verified sessions</p>
+          </div>
+
+          {/* 3. Upcoming Confirmed Sessions */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Upcoming Confirmed</span>
+              <Clock className="w-4 h-4 text-ocean-600" />
+            </div>
+            <p className="text-2xl font-black text-slate-900">{activeConfirmedBookings.length}</p>
+            <p className="text-[11px] text-slate-500 mt-1">On your teaching calendar</p>
+          </div>
+
+          {/* 4. Learner Reviews & Ratings */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Learner Rating</span>
+              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            </div>
+            <p className="text-2xl font-black text-slate-900">
+              {currentUser.rating ? currentUser.rating.toFixed(1) : '5.0'}★
+            </p>
+            <p className="text-[11px] text-slate-500 mt-1">From {currentUser.reviewCount || 0} reviews</p>
+          </div>
+
+          {/* 5. Skills & Availability */}
+          <div className="col-span-2 lg:col-span-1 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center justify-between text-slate-400 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Skills & Slots</span>
+              <GraduationCap className="w-4 h-4 text-brand-600" />
+            </div>
+            <p className="text-2xl font-black text-slate-900">{mySkills.length}</p>
+            <p className="text-[11px] text-slate-500 mt-1">{totalAvailableSlots} available slots open</p>
+          </div>
+        </div>
+
+        {/* Reinvest Credits Callout */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-brand-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-amber-950">
+                You have {wallet.balance} available credits! Ready to learn from other mentors?
+              </h4>
+              <p className="text-[11px] text-amber-900/80 mt-0.5">
+                Credits earned from your teaching can be spent to enroll in design, programming, guitar, languages, or cooking from fellow neighbors.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => onNavigate('explore')}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 transition-colors shadow-2xs self-start sm:self-auto flex items-center gap-1.5 shrink-0"
+          >
+            <span>Explore Mentors</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* 1. Pending Learner Requests Section */}
@@ -176,7 +279,21 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
                       <span>Format: {b.mode}</span>
                     </div>
 
-                    {b.isBarterExchange && b.proposedBarterSkill && (
+                    {b.bookingType === 'credit' && (
+                      <div className="inline-flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 font-medium mt-1">
+                        <Coins className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Credit Booking: Earns +{b.creditCost || 10} credits upon completion</span>
+                      </div>
+                    )}
+
+                    {b.bookingType === 'sponsored' && (
+                      <div className="inline-flex items-center gap-1.5 text-xs text-ocean-900 bg-ocean-50 px-2.5 py-1 rounded-md border border-ocean-200 font-medium mt-1">
+                        <Gift className="w-3.5 h-3.5 text-ocean-600" />
+                        <span>Sponsored Request: {b.sponsoredReason || 'Community learning grant'}</span>
+                      </div>
+                    )}
+
+                    {(b.bookingType === 'barter' || b.isBarterExchange) && b.proposedBarterSkill && (
                       <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 font-medium mt-1">
                         <Repeat className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Proposed Barter: {b.learnerName} offers to teach you "{b.proposedBarterSkill}"</span>
