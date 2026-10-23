@@ -20,6 +20,8 @@ import {
   Menu,
   X,
   MapPin,
+  HelpCircle,
+  Users,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -67,6 +69,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
 
   const navLinks = [
     { id: 'explore', label: 'Explore Skills', icon: Compass },
+    { id: 'requests', label: 'Requests Board', icon: HelpCircle },
+    { id: 'circles', label: 'Skill Circles', icon: Users },
     ...(currentUser
       ? [
           { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -91,13 +95,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
               onClick={() => onNavigate(currentUser ? 'dashboard' : 'landing')}
               className="flex items-center gap-2.5 text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-ocean-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-700 to-ocean-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
                 <span className="text-xl">🤝</span>
               </div>
               <div>
-                <span className="font-extrabold text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
+                <span className="font-black text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
                   SkillConnect
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-700 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand-100 text-brand-800 uppercase tracking-wider">
                     Free Barter
                   </span>
                 </span>
@@ -108,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
             </button>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
+            <div className="hidden xl:flex items-center space-x-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = currentTab === link.id;
@@ -119,9 +123,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                       onNavigate(link.id);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                       isActive
-                        ? 'bg-brand-50 text-brand-700'
+                        ? 'bg-brand-50 text-brand-700 shadow-2xs'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
@@ -134,12 +138,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
           </div>
 
           {/* Right Section Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {/* Demo / Backend indicator */}
             <div className="relative" ref={switcherRef}>
               <button
                 onClick={() => setIsDemoSwitcherOpen(!isDemoSwitcherOpen)}
-                className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                   isFirebaseMode
                     ? 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
                     : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
@@ -147,13 +151,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                 title="Switch persona or inspect backend state"
               >
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{isFirebaseMode ? 'Firebase Live' : 'Demo Mode Active'}</span>
+                <span className="hidden sm:inline">{isFirebaseMode ? 'Firebase Live' : 'Demo Mode Active'}</span>
                 <ChevronDown className="w-3 h-3 text-slate-500" />
               </button>
 
               {/* Persona Switcher Dropdown */}
               {isDemoSwitcherOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-2xl border border-slate-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-80 rounded-3xl bg-white shadow-2xl border border-slate-200 py-3 z-50">
                   <div className="px-4 py-2 border-b border-slate-100">
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Switch Demo Persona
@@ -162,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                       Test multi-user requests, teacher approvals, and barter exchanges instantly.
                     </p>
                   </div>
-                  <div className="max-h-60 overflow-y-auto py-1">
+                  <div className="max-h-72 overflow-y-auto py-1">
                     {demoUsers.map((user) => (
                       <button
                         key={user.id}
@@ -175,11 +179,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                           currentUser?.id === user.id ? 'bg-brand-50/70 font-semibold' : ''
                         }`}
                       >
-                        <img
-                          src={user.avatar}
-                          alt={user.name}
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                        />
+                        <div className="relative shrink-0">
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                          />
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border border-white rounded-full" />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold text-slate-900 truncate flex items-center justify-between">
                             {user.name}
@@ -220,7 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
             {currentUser && (
               <button
                 onClick={() => onNavigate('create-skill')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition-all"
+                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition-all"
               >
                 <PlusCircle className="w-4 h-4" />
                 Offer a Skill
@@ -245,7 +252,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
 
                 {/* Notifications Popover Dropdown */}
                 {isNotifOpen && (
-                  <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl border border-slate-200 py-3 z-50">
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white shadow-2xl border border-slate-200 py-3 z-50">
                     <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-100">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-slate-900">Notifications</span>
@@ -308,7 +315,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 p-1 pl-2 rounded-full border border-slate-200 hover:border-slate-300 transition-colors"
                 >
-                  <span className="text-xs font-semibold text-slate-700 hidden sm:inline max-w-[100px] truncate">
+                  <span className="text-xs font-bold text-slate-800 hidden sm:inline max-w-[100px] truncate">
                     {currentUser.name.split(' ')[0]}
                   </span>
                   <img
@@ -319,7 +326,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white shadow-2xl border border-slate-200 py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 rounded-3xl bg-white shadow-2xl border border-slate-200 py-3 z-50">
                     <div className="px-4 py-2 border-b border-slate-100">
                       <p className="text-sm font-bold text-slate-900 truncate">{currentUser.name}</p>
                       <p className="text-xs text-slate-500 truncate">{currentUser.email}</p>
@@ -338,7 +345,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                         className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                       >
                         <UserIcon className="w-4 h-4 text-slate-400" />
-                        Profile & Settings
+                        Profile & Preferences
                       </button>
                       <button
                         onClick={() => {
@@ -349,6 +356,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
                       >
                         <PlusCircle className="w-4 h-4 text-slate-400" />
                         Offer New Skill
+                      </button>
+                      <button
+                        onClick={() => {
+                          onNavigate('bookings');
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        <CalendarCheck className="w-4 h-4 text-slate-400" />
+                        Manage All Bookings
                       </button>
                       {currentUser.role === 'admin' && (
                         <button
@@ -400,7 +417,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              className="xl:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               aria-label="Toggle Navigation Menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -411,7 +428,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-2">
+        <div className="xl:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-2">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = currentTab === link.id;

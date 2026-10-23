@@ -5,6 +5,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { getBookingsForUser, updateBookingStatus } from '../services/storageService';
 import { Badge } from '../components/common/Badge';
 import { ReviewModal } from '../components/reviews/ReviewModal';
+import { SessionRoomModal } from '../components/skills/SessionRoomModal';
 import { EmptyState } from '../components/common/EmptyState';
 import {
   GraduationCap,
@@ -17,6 +18,7 @@ import {
   XCircle,
   Star,
   ArrowRight,
+  Video,
 } from 'lucide-react';
 
 interface MyEnrollmentsPageProps {
@@ -30,6 +32,7 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null);
+  const [activeWorkspaceBooking, setActiveWorkspaceBooking] = useState<Booking | null>(null);
 
   const loadData = async () => {
     if (!currentUser) return;
@@ -95,7 +98,7 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
           </div>
           <h1 className="text-3xl font-black text-slate-900 mt-0.5">My Enrollments</h1>
           <p className="text-xs text-slate-500 mt-1">
-            Track all skills you are learning, manage your schedule, and rate completed sessions.
+            Track all skills you are learning, join live session rooms, and rate completed sessions.
           </p>
         </div>
 
@@ -152,20 +155,20 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
           {filteredBookings.map((b) => (
             <div
               key={b.id}
-              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+              className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
             >
               {/* Left Info */}
               <div className="flex items-start gap-4">
                 <img
                   src={b.teacherAvatar}
                   alt={b.teacherName}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-slate-200 shrink-0"
+                  className="w-13 h-13 rounded-full object-cover border-2 border-slate-200 shrink-0"
                 />
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3
                       onClick={() => onNavigate('skill-detail', b.skillId)}
-                      className="text-base font-bold text-slate-900 hover:text-brand-600 transition-colors cursor-pointer"
+                      className="text-base font-extrabold text-slate-900 hover:text-brand-600 transition-colors cursor-pointer"
                     >
                       {b.skillTitle}
                     </h3>
@@ -204,8 +207,18 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
 
               {/* Right Action Buttons */}
               <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {b.status === 'accepted' && (
+                  <button
+                    onClick={() => setActiveWorkspaceBooking(b)}
+                    className="px-3.5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Session Room</span>
+                  </button>
+                )}
+
                 <button
-                  onClick={() => onNavigate('messages')}
+                  onClick={() => onNavigate('messages', b.teacherId)}
                   className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5"
                 >
                   <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
@@ -243,7 +256,7 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
                     onClick={() => handleCancelBooking(b.id)}
                     className="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                   >
-                    Cancel Request
+                    Cancel
                   </button>
                 )}
               </div>
@@ -258,6 +271,13 @@ export const MyEnrollmentsPage: React.FC<MyEnrollmentsPageProps> = ({ onNavigate
         isOpen={Boolean(reviewingBooking)}
         onClose={() => setReviewingBooking(null)}
         onSuccess={() => loadData()}
+      />
+
+      {/* Live Session Workspace Modal */}
+      <SessionRoomModal
+        booking={activeWorkspaceBooking}
+        isOpen={Boolean(activeWorkspaceBooking)}
+        onClose={() => setActiveWorkspaceBooking(null)}
       />
     </div>
   );

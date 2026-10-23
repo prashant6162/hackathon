@@ -1,4 +1,4 @@
-import { User, Skill, Booking, Review, Notification, Message } from '../types';
+import { User, Skill, Booking, Review, Notification, Message, SkillRequest, SkillCircle } from '../types';
 
 export const INITIAL_USERS: User[] = [
   {
@@ -10,13 +10,26 @@ export const INITIAL_USERS: User[] = [
     city: 'San Francisco',
     latitude: 37.7599,
     longitude: -122.4148,
-    bio: 'Product Designer by day, watercolor enthusiast by night. Passionate about design systems and creative exchange!',
+    bio: 'Product Designer by day, watercolor enthusiast by night. Passionate about design systems, loose botanical painting, and neighborhood creative barter!',
     teachSkills: ['UI/UX Design', 'Figma Prototyping', 'Watercolor Painting'],
     learnSkills: ['Python Programming', 'Spanish Conversational', 'Sourdough Bread Making'],
     preferredMode: 'both',
-    rating: 4.9,
+    rating: 4.95,
     reviewCount: 14,
     completedSessions: 18,
+    totalHoursExchanged: 32,
+    responseTime: 'Usually responds in ~45 mins',
+    endorsements: {
+      'UI/UX Design': 16,
+      'Figma Prototyping': 14,
+      'Design Systems': 12,
+      'Watercolor Painting': 9,
+    },
+    badges: [
+      { id: 'b1', name: 'Verified Mentor', icon: '🛡️', description: 'Identity and neighborhood presence confirmed' },
+      { id: 'b2', name: 'Pioneer Barterer', icon: '🌟', description: 'Over 15 completed peer skill exchanges' },
+      { id: 'b3', name: 'Top Rated 5.0', icon: '⭐', description: 'Maintained 4.9+ star rating across all reviews' },
+    ],
     role: 'user',
     createdAt: '2026-08-15T10:00:00Z',
   },
@@ -33,9 +46,20 @@ export const INITIAL_USERS: User[] = [
     teachSkills: ['Full-Stack React', 'Node.js API', 'TypeScript Mastery', 'Python Programming'],
     learnSkills: ['Acoustic Guitar', 'French Language', 'Portrait Photography'],
     preferredMode: 'both',
-    rating: 4.85,
+    rating: 4.88,
     reviewCount: 11,
     completedSessions: 15,
+    totalHoursExchanged: 26,
+    responseTime: 'Usually responds in < 2 hours',
+    endorsements: {
+      'React & TypeScript': 18,
+      'Node.js Backends': 14,
+      'Python Automation': 10,
+    },
+    badges: [
+      { id: 'b1', name: 'Verified Mentor', icon: '🛡️', description: 'Identity verified' },
+      { id: 'b4', name: 'Code Craftsman', icon: '💻', description: 'Over 20 hours of code mentoring' },
+    ],
     role: 'user',
     createdAt: '2026-08-20T14:30:00Z',
   },
@@ -55,6 +79,18 @@ export const INITIAL_USERS: User[] = [
     rating: 5.0,
     reviewCount: 19,
     completedSessions: 24,
+    totalHoursExchanged: 42,
+    responseTime: 'Usually responds in ~30 mins',
+    endorsements: {
+      'Acoustic Guitar': 21,
+      'Fingerpicking Technique': 18,
+      'Music Theory': 15,
+    },
+    badges: [
+      { id: 'b1', name: 'Verified Mentor', icon: '🛡️', description: 'Identity verified' },
+      { id: 'b2', name: 'Master Musician', icon: '🎸', description: 'Over 20 music exchanges' },
+      { id: 'b3', name: 'Flawless 5.0', icon: '⭐', description: '100% 5-star rating' },
+    ],
     role: 'user',
     createdAt: '2026-07-10T09:15:00Z',
   },
@@ -71,9 +107,19 @@ export const INITIAL_USERS: User[] = [
     teachSkills: ['Authentic Mexican Cooking', 'Sourdough Bread Making', 'Spanish Conversational'],
     learnSkills: ['Full-Stack React', 'TypeScript Mastery', 'Portrait Photography'],
     preferredMode: 'both',
-    rating: 4.9,
+    rating: 4.92,
     reviewCount: 8,
     completedSessions: 10,
+    totalHoursExchanged: 24,
+    responseTime: 'Usually responds in ~1 hour',
+    endorsements: {
+      'Oaxacan Cooking': 15,
+      'Sourdough Fermentation': 12,
+      'Tortilla Crafting': 11,
+    },
+    badges: [
+      { id: 'b5', name: 'Culinary Host', icon: '🍳', description: 'Hosted in-person food exchanges' },
+    ],
     role: 'user',
     createdAt: '2026-09-01T16:00:00Z',
   },
@@ -90,9 +136,20 @@ export const INITIAL_USERS: User[] = [
     teachSkills: ['Hatha Yoga & Mindfulness', 'Breathwork & Meditation', 'Flexibility Training'],
     learnSkills: ['Public Speaking', 'UI/UX Design', 'Watercolor Painting'],
     preferredMode: 'both',
-    rating: 4.95,
+    rating: 4.96,
     reviewCount: 22,
     completedSessions: 29,
+    totalHoursExchanged: 45,
+    responseTime: 'Usually responds in ~1 hour',
+    endorsements: {
+      'Hatha Yoga': 24,
+      'Breathwork': 19,
+      'Stress Relief': 18,
+    },
+    badges: [
+      { id: 'b1', name: 'Verified Mentor', icon: '🛡️', description: 'Certified yoga instructor' },
+      { id: 'b6', name: 'Community Healer', icon: '🌿', description: 'Over 25 wellness sessions' },
+    ],
     role: 'user',
     createdAt: '2026-06-25T11:45:00Z',
   },
@@ -112,6 +169,15 @@ export const INITIAL_USERS: User[] = [
     rating: 4.88,
     reviewCount: 12,
     completedSessions: 16,
+    totalHoursExchanged: 28,
+    responseTime: 'Usually responds in ~3 hours',
+    endorsements: {
+      'Portrait Photography': 14,
+      'Lightroom Color Grading': 12,
+    },
+    badges: [
+      { id: 'b7', name: 'Visual Storyteller', icon: '📸', description: 'Master of natural light' },
+    ],
     role: 'user',
     createdAt: '2026-08-05T13:20:00Z',
   },
@@ -131,6 +197,8 @@ export const INITIAL_USERS: User[] = [
     rating: 5.0,
     reviewCount: 6,
     completedSessions: 8,
+    totalHoursExchanged: 16,
+    responseTime: 'Instant response',
     role: 'admin',
     createdAt: '2026-06-01T08:00:00Z',
   },
@@ -145,12 +213,36 @@ export const INITIAL_SKILLS: Skill[] = [
     teacherLocality: 'Mission District, San Francisco',
     title: 'Modern UI/UX Design & Component Systems in Figma',
     category: 'Design',
-    description: 'Master the principles of intuitive user interface design! We will cover typography scales, auto-layout 5.0, design tokens, responsive breakpoints, and building reusable design system components from scratch.',
+    description: 'Master the principles of intuitive user interface design! We cover responsive typography scales, auto-layout 5.0, design tokens, component variants, and building reusable interactive design systems from scratch in Figma.',
     level: 'Intermediate',
     mode: 'both',
     locality: 'Mission District, San Francisco',
     latitude: 37.7599,
     longitude: -122.4148,
+    coverImage: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Mission Dolores Park / Cafe Dolores (or Jitsi video link)',
+    curriculum: [
+      {
+        title: 'Module 1: Typography Scales & Spatial 8pt Grid',
+        duration: '30 mins',
+        topics: ['Establishing vertical rhythm', 'Golden ratio font pairing', 'Micro-spacing system']
+      },
+      {
+        title: 'Module 2: Figma Auto-Layout 5.0 & Responsive Containers',
+        duration: '30 mins',
+        topics: ['Wrap constraints', 'Min/max dimension clamps', 'Nested cards & pill badges']
+      },
+      {
+        title: 'Module 3: Design Tokens & Reusable Component Library',
+        duration: '30 mins',
+        topics: ['Color and semantic tokens', 'Component variants & boolean properties', 'Interactive prototyping']
+      }
+    ],
+    whatYouWillLearn: [
+      'Create a scalable multi-device mobile & desktop layout system',
+      'Structure clean component variants with boolean and instance swap properties',
+      'Organize design files for seamless developer handoff'
+    ],
     availableSlots: [
       { id: 'slot-1', day: 'Saturday', time: '10:00 AM - 11:30 AM' },
       { id: 'slot-2', day: 'Tuesday', time: '6:30 PM - 8:00 PM' },
@@ -162,6 +254,7 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['UI/UX', 'Figma', 'Design Systems', 'Product Design', 'Wireframing'],
     rating: 4.95,
     reviewCount: 9,
+    viewsCount: 312,
     createdAt: '2026-08-25T11:00:00Z',
     updatedAt: '2026-08-25T11:00:00Z',
   },
@@ -171,7 +264,7 @@ export const INITIAL_SKILLS: Skill[] = [
     teacherName: 'David Chen',
     teacherAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
     teacherLocality: 'Sunset District, San Francisco',
-    title: 'Full-Stack React & Modern TypeScript Development',
+    title: 'Full-Stack React 18 & Modern TypeScript Architecture',
     category: 'Web Development',
     description: 'Hands-on mentorship in building robust modern web apps. We build real features using React 18 hooks, custom state stores, TypeScript generics, Vite, and clean API integration patterns.',
     level: 'Intermediate',
@@ -179,16 +272,41 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Sunset District, San Francisco',
     latitude: 37.7534,
     longitude: -122.4941,
+    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Sunset Community Library Tech Room / Online',
+    curriculum: [
+      {
+        title: 'Module 1: TypeScript Generics & Type Narrowing in React',
+        duration: '30 mins',
+        topics: ['Discriminated unions', 'Generic hook signatures', 'Context typing']
+      },
+      {
+        title: 'Module 2: Custom Reactive Store & State Optimization',
+        duration: '35 mins',
+        topics: ['Event-driven stores', 'Selective re-renders', 'Reducer patterns']
+      },
+      {
+        title: 'Module 3: Async Resilient API & Error Boundaries',
+        duration: '25 mins',
+        topics: ['AbortController cleanup', 'Optimistic UI mutations', 'Toast feedback']
+      }
+    ],
+    whatYouWillLearn: [
+      'Write rock-solid type-safe custom React hooks',
+      'Architect maintainable state without third-party boilerplate',
+      'Optimize component render lifecycles and memory usage'
+    ],
     availableSlots: [
       { id: 'slot-d1', day: 'Sunday', time: '2:00 PM - 3:30 PM' },
       { id: 'slot-d2', day: 'Wednesday', time: '7:00 PM - 8:30 PM' }
     ],
     durationMinutes: 90,
     maxLearners: 2,
-    prerequisites: 'Basic JavaScript/HTML knowledge required.',
+    prerequisites: 'Basic JavaScript and HTML knowledge required.',
     tags: ['React', 'TypeScript', 'Web Development', 'Frontend', 'Vite'],
     rating: 4.9,
     reviewCount: 7,
+    viewsCount: 248,
     createdAt: '2026-08-28T09:00:00Z',
     updatedAt: '2026-08-28T09:00:00Z',
   },
@@ -206,6 +324,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Marina District, San Francisco',
     latitude: 37.8037,
     longitude: -122.4368,
+    coverImage: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Marina Green / Fort Mason Center Lawn',
+    curriculum: [
+      {
+        title: 'Module 1: Ergonomics, Posture & Thumb Independence',
+        duration: '20 mins',
+        topics: ['Proper wrist relief', 'Alternating bass pattern', 'Muting unwanted strings']
+      },
+      {
+        title: 'Module 2: The Travis Picking Pattern in Open D & G',
+        duration: '25 mins',
+        topics: ['P-I-M-A finger assignments', 'Syncopated melody lines', 'Fluid chord shifting']
+      },
+      {
+        title: 'Module 3: Putting It All Together With a Folk Classic',
+        duration: '15 mins',
+        topics: ['Dynamics and expressiveness', 'Singing while fingerpicking']
+      }
+    ],
+    whatYouWillLearn: [
+      'Master thumb and index independence for clean fingerstyle songs',
+      'Switch between C, G, Am, and Em smoothly without breaking rhythm',
+      'Play 2 complete fingerpicking songs by the end of session'
+    ],
     availableSlots: [
       { id: 'slot-e1', day: 'Monday', time: '5:30 PM - 6:30 PM' },
       { id: 'slot-e2', day: 'Saturday', time: '11:00 AM - 12:00 PM' }
@@ -216,6 +358,7 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['Guitar', 'Acoustic', 'Music Theory', 'Fingerstyle', 'Chords'],
     rating: 5.0,
     reviewCount: 14,
+    viewsCount: 420,
     createdAt: '2026-07-20T10:00:00Z',
     updatedAt: '2026-07-20T10:00:00Z',
   },
@@ -233,16 +376,41 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'SOMA, San Francisco',
     latitude: 37.7785,
     longitude: -122.4056,
+    coverImage: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Carlos Community Kitchen in SOMA',
+    curriculum: [
+      {
+        title: 'Module 1: Toasting Dried Guajillo & Ancho Chilies',
+        duration: '40 mins',
+        topics: ['De-seeding and blooming spices', 'Blending with roasted tomatoes and Mexican chocolate']
+      },
+      {
+        title: 'Module 2: Fresh Nixtamal Masa Hydration & Pressing',
+        duration: '50 mins',
+        topics: ['Dough elasticity test', 'Cast iron comal heat management', 'The tortilla puff indicator']
+      },
+      {
+        title: 'Module 3: Slow Simmer & Community Family Feast',
+        duration: '60 mins',
+        topics: ['Balancing acidity and sweetness', 'Plating and tasting with Mexican crema']
+      }
+    ],
+    whatYouWillLearn: [
+      'Master chili roasting without burning or bitterness',
+      'Hydrate masa harina to the perfect pliable consistency',
+      'Take home a jar of concentrated artisanal red mole paste'
+    ],
     availableSlots: [
       { id: 'slot-c1', day: 'Sunday', time: '11:00 AM - 1:30 PM' },
       { id: 'slot-c2', day: 'Friday', time: '6:00 PM - 8:30 PM' }
     ],
     durationMinutes: 150,
     maxLearners: 4,
-    prerequisites: 'Appetite and willingness to roast chilies and spices!',
+    prerequisites: 'Appetite and willingness to roast chilies and spices! Apron recommended.',
     tags: ['Cooking', 'Mexican Cuisine', 'Tortillas', 'Mole', 'Culinary'],
     rating: 4.95,
     reviewCount: 6,
+    viewsCount: 380,
     createdAt: '2026-09-05T15:00:00Z',
     updatedAt: '2026-09-05T15:00:00Z',
   },
@@ -260,6 +428,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Downtown, Oakland',
     latitude: 37.8044,
     longitude: -122.2712,
+    coverImage: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Lake Merritt Pergola Lawn / Zoom Virtual Shala',
+    curriculum: [
+      {
+        title: 'Module 1: Diaphragmatic Breath & Somatic Grounding',
+        duration: '15 mins',
+        topics: ['Box breathing (Sama Vritti)', 'Nadi Shodhana alternate nostril breath']
+      },
+      {
+        title: 'Module 2: Restorative Spinal Flows & Hip Openers',
+        duration: '35 mins',
+        topics: ['Gentle Surya Namaskar variations', 'Pigeon pose alignment', 'Spinal twist releases']
+      },
+      {
+        title: 'Module 3: Guided Yoga Nidra Relaxation',
+        duration: '10 mins',
+        topics: ['Full-body awareness scan', 'Deep parasympathetic nervous reset']
+      }
+    ],
+    whatYouWillLearn: [
+      'Alleviate desk-bound neck and lower back tightness',
+      'Use pranayama breathwork to counter acute workplace stress in 3 minutes',
+      'Develop a sustainable 15-minute morning routine at home'
+    ],
     availableSlots: [
       { id: 'slot-p1', day: 'Tuesday', time: '7:30 AM - 8:30 AM' },
       { id: 'slot-p2', day: 'Thursday', time: '7:30 AM - 8:30 AM' },
@@ -267,10 +459,11 @@ export const INITIAL_SKILLS: Skill[] = [
     ],
     durationMinutes: 60,
     maxLearners: 6,
-    prerequisites: 'Yoga mat, comfortable clothing.',
+    prerequisites: 'Yoga mat or clean towel, comfortable clothing.',
     tags: ['Yoga', 'Meditation', 'Mindfulness', 'Wellness', 'Breathwork'],
     rating: 4.96,
     reviewCount: 16,
+    viewsCount: 510,
     createdAt: '2026-07-15T08:00:00Z',
     updatedAt: '2026-07-15T08:00:00Z',
   },
@@ -288,6 +481,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Elmwood, Berkeley',
     latitude: 37.8590,
     longitude: -122.2575,
+    coverImage: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Telegraph Ave / UC Berkeley Campanile Plaza',
+    curriculum: [
+      {
+        title: 'Module 1: The Exposure Triangle & Manual Focus',
+        duration: '35 mins',
+        topics: ['Depth of field with wide apertures', 'Avoiding motion blur', 'Dynamic range metering']
+      },
+      {
+        title: 'Module 2: Street Walk & Subject Direction',
+        duration: '45 mins',
+        topics: ['Working with ambient window light', 'Leading lines in architecture', 'Comfortable portrait posing']
+      },
+      {
+        title: 'Module 3: Mobile Lightroom Color Grading & Curves',
+        duration: '25 mins',
+        topics: ['Tone curves for film look', 'Split toning highlights and shadows', 'Exporting crisp presets']
+      }
+    ],
+    whatYouWillLearn: [
+      'Stop using Auto mode forever with confident manual settings',
+      'Frame subjects with cinematic bokeh and natural window light',
+      'Color grade raw shots with vintage tones in Adobe Lightroom'
+    ],
     availableSlots: [
       { id: 'slot-m1', day: 'Saturday', time: '4:00 PM - 5:45 PM' },
       { id: 'slot-m2', day: 'Sunday', time: '4:00 PM - 5:45 PM' }
@@ -298,6 +515,7 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['Photography', 'Portraits', 'Lightroom', 'Street Photography', 'Composition'],
     rating: 4.88,
     reviewCount: 8,
+    viewsCount: 340,
     createdAt: '2026-08-10T12:00:00Z',
     updatedAt: '2026-08-10T12:00:00Z',
   },
@@ -315,6 +533,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'SOMA, San Francisco',
     latitude: 37.7785,
     longitude: -122.4056,
+    coverImage: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Yerba Buena Gardens or Online Meet',
+    curriculum: [
+      {
+        title: 'Module 1: Real-Life Introductions & Small Talk',
+        duration: '20 mins',
+        topics: ['Casual greetings vs formal usted', 'Pronunciation rhythm & rolled R tips']
+      },
+      {
+        title: 'Module 2: Navigating Markets, Restaurants & Directions',
+        duration: '25 mins',
+        topics: ['Ordering food like a local', 'Asking prices and locations confidently']
+      },
+      {
+        title: 'Module 3: Storytelling in the Past & Present',
+        duration: '15 mins',
+        topics: ['Sharing weekend stories', 'Useful idioms & slang from Latin America']
+      }
+    ],
+    whatYouWillLearn: [
+      'Speak conversational Spanish comfortably without hesitation',
+      'Understand colloquial speed and everyday slang',
+      'Order food and navigate local Hispanic markets with native ease'
+    ],
     availableSlots: [
       { id: 'slot-sp1', day: 'Monday', time: '6:00 PM - 7:00 PM' },
       { id: 'slot-sp2', day: 'Wednesday', time: '6:00 PM - 7:00 PM' }
@@ -325,6 +567,7 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['Spanish', 'Language Exchange', 'Conversational', 'Travel Spanish'],
     rating: 4.85,
     reviewCount: 5,
+    viewsCount: 290,
     createdAt: '2026-09-12T14:00:00Z',
     updatedAt: '2026-09-12T14:00:00Z',
   },
@@ -342,6 +585,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Sunset District, San Francisco',
     latitude: 37.7534,
     longitude: -122.4941,
+    coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Google Meet / VS Code Live Share',
+    curriculum: [
+      {
+        title: 'Module 1: Variables, Loops & File Path Operations',
+        duration: '25 mins',
+        topics: ['Python basics without confusing syntax', 'os and pathlib modules']
+      },
+      {
+        title: 'Module 2: Batch Processing 500 Files in 10 Lines',
+        duration: '25 mins',
+        topics: ['Regex file matching', 'Auto-renaming and sorting assets']
+      },
+      {
+        title: 'Module 3: Simple Web Scraping & CSV Exports',
+        duration: '25 mins',
+        topics: ['BeautifulSoup essentials', 'Saving clean data for spreadsheets']
+      }
+    ],
+    whatYouWillLearn: [
+      'Write your own practical desktop automation scripts',
+      'Clean messy Excel/CSV data automatically in seconds',
+      'Overcome fear of programming in a friendly pair-coding setup'
+    ],
     availableSlots: [
       { id: 'slot-py1', day: 'Monday', time: '7:00 PM - 8:15 PM' },
       { id: 'slot-py2', day: 'Thursday', time: '7:00 PM - 8:15 PM' }
@@ -352,6 +619,7 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['Python', 'Automation', 'Scripting', 'Programming', 'Beginner'],
     rating: 4.92,
     reviewCount: 8,
+    viewsCount: 395,
     createdAt: '2026-09-02T11:00:00Z',
     updatedAt: '2026-09-02T11:00:00Z',
   },
@@ -361,7 +629,7 @@ export const INITIAL_SKILLS: Skill[] = [
     teacherName: 'Maya Patel',
     teacherAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
     teacherLocality: 'Mission District, San Francisco',
-    title: 'Botanical Watercolor Painting & Color Wet-on-Wet Blending',
+    title: 'Botanical Watercolor Painting & Wet-on-Wet Blending',
     category: 'Design',
     description: 'Relax into the meditative flow of watercolor! We explore color harmony, wash gradients, and painting leafy botanicals with loose, expressive brushstrokes in a supportive studio setting.',
     level: 'Beginner',
@@ -369,6 +637,30 @@ export const INITIAL_SKILLS: Skill[] = [
     locality: 'Mission District, San Francisco',
     latitude: 37.7599,
     longitude: -122.4148,
+    coverImage: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
+    meetingVenue: 'Mission Community Art Studio / Park Pavilion',
+    curriculum: [
+      {
+        title: 'Module 1: Water Control & Pigment Transparency',
+        duration: '30 mins',
+        topics: ['Wet-on-wet vs wet-on-dry', 'Flat washes and gradient blooms']
+      },
+      {
+        title: 'Module 2: Mixing Earthy Greens & Botanical Palettes',
+        duration: '30 mins',
+        topics: ['Monochrome study', 'Layering veins and delicate stems']
+      },
+      {
+        title: 'Module 3: Painting a Botanical Eucalyptus & Fern Bookmark',
+        duration: '30 mins',
+        topics: ['Negative painting techniques', 'Framing and preservation']
+      }
+    ],
+    whatYouWillLearn: [
+      'Stop overworking your paper and master water ratios',
+      'Mix rich organic greens from primary pigments without mud',
+      'Complete a beautiful framed botanical artwork to keep'
+    ],
     availableSlots: [
       { id: 'slot-wc1', day: 'Sunday', time: '1:00 PM - 2:30 PM' },
       { id: 'slot-wc2', day: 'Wednesday', time: '5:30 PM - 7:00 PM' }
@@ -379,8 +671,111 @@ export const INITIAL_SKILLS: Skill[] = [
     tags: ['Watercolor', 'Art', 'Painting', 'Illustration', 'Botanical'],
     rating: 4.9,
     reviewCount: 6,
+    viewsCount: 310,
     createdAt: '2026-08-30T10:00:00Z',
     updatedAt: '2026-08-30T10:00:00Z',
+  }
+];
+
+export const INITIAL_SKILL_REQUESTS: SkillRequest[] = [
+  {
+    id: 'req-1',
+    requesterId: 'user-maya',
+    requesterName: 'Maya Patel',
+    requesterAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+    requesterLocality: 'Mission District, San Francisco',
+    title: 'Seeking mentor for Sourdough Starter & Dutch Oven Baking',
+    category: 'Cooking',
+    description: 'I have tried sourdough twice but my loaf fails to spring in the oven! Looking for a local baker to guide me through autolyse and coil folds. Happy to teach UI/UX design or watercolor in exchange!',
+    offeredInReturn: ['UI/UX Design', 'Figma Prototyping', 'Watercolor Painting'],
+    preferredMode: 'in-person',
+    urgency: 'this_week',
+    responsesCount: 3,
+    status: 'open',
+    createdAt: '2026-10-20T12:00:00Z',
+  },
+  {
+    id: 'req-2',
+    requesterId: 'user-david',
+    requesterName: 'David Chen',
+    requesterAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+    requesterLocality: 'Sunset District, San Francisco',
+    title: 'Wanted: Intermediate Acoustic Fingerpicking Guitar Coach',
+    category: 'Music',
+    description: 'Looking to transition from standard strumming to alternating bass Travis picking. Can offer deep React, TypeScript, or backend coding mentorship in return!',
+    offeredInReturn: ['Full-Stack React', 'TypeScript Mastery', 'Python Programming'],
+    preferredMode: 'both',
+    urgency: 'flexible',
+    responsesCount: 2,
+    status: 'open',
+    createdAt: '2026-10-18T09:30:00Z',
+  },
+  {
+    id: 'req-3',
+    requesterId: 'user-carlos',
+    requesterName: 'Carlos Ramirez',
+    requesterAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+    requesterLocality: 'SOMA, San Francisco',
+    title: 'Need help building a culinary portfolio website with React',
+    category: 'Web Development',
+    description: 'I have recipes and photography ready, but need guidance creating a simple clean React grid gallery. Can barter with homemade authentic Oaxacan mole paste and cooking lessons!',
+    offeredInReturn: ['Authentic Mexican Cooking', 'Sourdough Bread Making', 'Spanish Conversational'],
+    preferredMode: 'both',
+    urgency: 'weekend',
+    responsesCount: 4,
+    status: 'open',
+    createdAt: '2026-10-21T15:00:00Z',
+  }
+];
+
+export const INITIAL_SKILL_CIRCLES: SkillCircle[] = [
+  {
+    id: 'circle-1',
+    name: 'Bay Area Creative Barter Collective',
+    locality: 'San Francisco & Oakland',
+    category: 'Design',
+    description: 'A thriving collective of 140+ designers, illustrators, and artists who trade design feedback, Figma techniques, and traditional craft mentorship.',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop&q=80',
+    membersCount: 142,
+    meetupCadence: 'Every other Saturday at 11:00 AM',
+    tags: ['Design', 'Art', 'Figma', 'Illustration'],
+    joined: true,
+  },
+  {
+    id: 'circle-2',
+    name: 'Mission & Sunset Neighborhood Code Exchange',
+    locality: 'San Francisco',
+    category: 'Programming',
+    description: 'Engineers, career changers, and hobbyists trading programming mentorship for non-tech skills like cooking, languages, and music.',
+    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop&q=80',
+    membersCount: 98,
+    meetupCadence: 'Wednesday evenings at 7:00 PM',
+    tags: ['React', 'Python', 'TypeScript', 'Barter'],
+    joined: true,
+  },
+  {
+    id: 'circle-3',
+    name: 'Acoustic Jam & Music Theory Guild',
+    locality: 'Marina & Berkeley',
+    category: 'Music',
+    description: 'Guitarists, pianists, and vocalists sharing songwriting tips, fingerstyle mechanics, and ear training with fellow local musicians.',
+    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
+    membersCount: 76,
+    meetupCadence: 'Monthly Sunday Jam at Marina Green',
+    tags: ['Acoustic', 'Guitar', 'Piano', 'Folk'],
+    joined: false,
+  },
+  {
+    id: 'circle-4',
+    name: 'East Bay Sourdough & Fermentation Guild',
+    locality: 'Oakland & Berkeley',
+    category: 'Cooking',
+    description: 'Bakers sharing active sourdough starter cultures, flour blending secrets, and baking science in home kitchens.',
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
+    membersCount: 84,
+    meetupCadence: 'First Sunday of each month',
+    tags: ['Sourdough', 'Baking', 'Fermentation', 'Culinary'],
+    joined: false,
   }
 ];
 
@@ -399,6 +794,8 @@ export const INITIAL_BOOKINGS: Booking[] = [
     learnerEmail: 'maya@skillconnect.local',
     slot: { id: 'slot-e2', day: 'Saturday', time: '11:00 AM - 12:00 PM' },
     mode: 'in-person',
+    meetingVenue: 'Fort Mason Center Lawn (Bench 12 by the Bay)',
+    sessionNotes: 'Mutual exchange agreement: Elena teaches fingerpicking fundamentals, Maya will conduct a Figma design system review for Elena in the following week.',
     message: 'Hi Elena! I would love to learn fingerpicking basics. I can offer you a session on Figma & UI/UX design in return if you would like to barter!',
     isBarterExchange: true,
     proposedBarterSkill: 'Modern UI/UX Design & Component Systems in Figma',
@@ -408,7 +805,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
   {
     id: 'booking-2',
     skillId: 'skill-react-david',
-    skillTitle: 'Full-Stack React & Modern TypeScript Development',
+    skillTitle: 'Full-Stack React & Modern TypeScript Architecture',
     skillCategory: 'Web Development',
     teacherId: 'user-david',
     teacherName: 'David Chen',
@@ -419,6 +816,8 @@ export const INITIAL_BOOKINGS: Booking[] = [
     learnerEmail: 'carlos@skillconnect.local',
     slot: { id: 'slot-d1', day: 'Sunday', time: '2:00 PM - 3:30 PM' },
     mode: 'both',
+    meetingVenue: 'Sunset Public Library Tech Lab',
+    sessionNotes: 'David will help Carlos setup a recipe gallery with React hooks and TypeScript types.',
     message: 'Hey David, building a recipe website and need help structuring my React state and TypeScript models. Happy to trade a Mexican cooking session with mole!',
     isBarterExchange: true,
     proposedBarterSkill: 'Traditional Oaxacan Mole & Handmade Heirloom Tortillas',
@@ -458,6 +857,8 @@ export const INITIAL_BOOKINGS: Booking[] = [
     learnerEmail: 'maya@skillconnect.local',
     slot: { id: 'slot-py1', day: 'Monday', time: '7:00 PM - 8:15 PM' },
     mode: 'online',
+    meetingVenue: 'Google Meet Virtual Room',
+    sessionNotes: 'Completed: Maya wrote an icon sorting automation script. Full session notes shared.',
     message: 'Hi David! Looking forward to learning Python to automate design assets export.',
     isBarterExchange: false,
     status: 'completed',
@@ -479,6 +880,8 @@ export const INITIAL_BOOKINGS: Booking[] = [
     learnerEmail: 'maya@skillconnect.local',
     slot: { id: 'slot-p3', day: 'Saturday', time: '9:00 AM - 10:00 AM' },
     mode: 'both',
+    meetingVenue: 'Lake Merritt Pergola Lawn',
+    sessionNotes: 'Completed: 60-minute grounding somatic breathwork practice.',
     message: 'Really looking for grounding practices to counter long screen hours.',
     isBarterExchange: false,
     status: 'completed',

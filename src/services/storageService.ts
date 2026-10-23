@@ -6,6 +6,8 @@ import {
   Notification,
   Message,
   BookingStatus,
+  SkillRequest,
+  SkillCircle,
 } from '../types';
 import {
   INITIAL_USERS,
@@ -14,8 +16,11 @@ import {
   INITIAL_REVIEWS,
   INITIAL_NOTIFICATIONS,
   INITIAL_MESSAGES,
+  INITIAL_SKILL_REQUESTS,
+  INITIAL_SKILL_CIRCLES,
 } from './mockData';
 import { isFirebaseConfigured, db } from '../config/firebase';
+import { sounds } from './soundService';
 import {
   collection,
   doc,
@@ -31,13 +36,15 @@ import {
 } from 'firebase/firestore';
 
 const STORAGE_KEYS = {
-  USERS: 'skillconnect_users_v1',
-  SKILLS: 'skillconnect_skills_v1',
-  BOOKINGS: 'skillconnect_bookings_v1',
-  REVIEWS: 'skillconnect_reviews_v1',
-  NOTIFICATIONS: 'skillconnect_notifications_v1',
-  MESSAGES: 'skillconnect_messages_v1',
-  ACTIVE_USER_ID: 'skillconnect_active_user_id_v1',
+  USERS: 'skillconnect_users_v2',
+  SKILLS: 'skillconnect_skills_v2',
+  BOOKINGS: 'skillconnect_bookings_v2',
+  REVIEWS: 'skillconnect_reviews_v2',
+  NOTIFICATIONS: 'skillconnect_notifications_v2',
+  MESSAGES: 'skillconnect_messages_v2',
+  REQUESTS: 'skillconnect_requests_v2',
+  CIRCLES: 'skillconnect_circles_v2',
+  ACTIVE_USER_ID: 'skillconnect_active_user_id_v2',
 };
 
 // Event listener mechanism for reactive in-app state updates
@@ -105,6 +112,12 @@ export function initializeStorageIfNeeded(): void {
   if (!localStorage.getItem(STORAGE_KEYS.MESSAGES)) {
     setLocalItem(STORAGE_KEYS.MESSAGES, INITIAL_MESSAGES);
   }
+  if (!localStorage.getItem(STORAGE_KEYS.REQUESTS)) {
+    setLocalItem(STORAGE_KEYS.REQUESTS, INITIAL_SKILL_REQUESTS);
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.CIRCLES)) {
+    setLocalItem(STORAGE_KEYS.CIRCLES, INITIAL_SKILL_CIRCLES);
+  }
 }
 
 export function resetDemoDataToDefaults(): void {
@@ -114,6 +127,8 @@ export function resetDemoDataToDefaults(): void {
   localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(INITIAL_REVIEWS));
   localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(INITIAL_NOTIFICATIONS));
   localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(INITIAL_MESSAGES));
+  localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(INITIAL_SKILL_REQUESTS));
+  localStorage.setItem(STORAGE_KEYS.CIRCLES, JSON.stringify(INITIAL_SKILL_CIRCLES));
   notifyDataChanged();
 }
 
@@ -156,6 +171,17 @@ export async function updateUser(user: User): Promise<void> {
   setLocalItem(STORAGE_KEYS.USERS, users);
 }
 
+export async function toggleSaveSkill(userId: string, skillId: string): Promise<boolean> {
+  const user = await getUserById(userId);
+  if (!user) return false;
+  const saved = user.savedSkillIds || [];
+  const exists = saved.includes(skillId);
+  const updatedSaved = exists ? saved.filter((id) => id !== skillId) : [...saved, skillId];
+  await updateUser({ ...user, savedSkillIds: updatedSaved });
+  sounds.playPop();
+  return !exists;
+}
+
 // ========================
 // SKILLS SERVICE
 // ========================
@@ -174,7 +200,13 @@ export async function getSkills(): Promise<Skill[]> {
 
 export async function getSkillById(id: string): Promise<Skill | null> {
   const skills = await getSkills();
-  return skills.find((s) => s.id === id) || null;
+  const found = skills.find((s) => s.id === id);
+  if (found) {
+    // Increment view count dynamically for realism
+    found.viewsCount = (found.viewsCount || 100) + 1;
+    setLocalItem(STORAGE_KEYS.SKILLS, skills);
+  }
+  return found || null;
 }
 
 export async function createSkill(skillData: Omit<Skill, 'id' | 'createdAt' | 'updatedAt' | 'rating' | 'reviewCount'>): Promise<Skill> {
@@ -183,6 +215,7 @@ export async function createSkill(skillData: Omit<Skill, 'id' | 'createdAt' | 'u
     id: `skill-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
     rating: 5.0,
     reviewCount: 0,
+    viewsCount: 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -198,6 +231,7 @@ export async function createSkill(skillData: Omit<Skill, 'id' | 'createdAt' | 'u
   const skills = getLocalItem<Skill[]>(STORAGE_KEYS.SKILLS, INITIAL_SKILLS);
   skills.unshift(newSkill);
   setLocalItem(STORAGE_KEYS.SKILLS, skills);
+  sounds.playSuccess();
   return newSkill;
 }
 
@@ -216,6 +250,7 @@ export async function updateSkill(skill: Skill): Promise<void> {
     skills[idx] = updated;
     setLocalItem(STORAGE_KEYS.SKILLS, skills);
   }
+  sounds.playPop();
 }
 
 export async function deleteSkill(skillId: string): Promise<void> {
@@ -229,6 +264,60 @@ export async function deleteSkill(skillId: string): Promise<void> {
   const skills = getLocalItem<Skill[]>(STORAGE_KEYS.SKILLS, INITIAL_SKILLS);
   const filtered = skills.filter((s) => s.id !== skillId);
   setLocalItem(STORAGE_KEYS.SKILLS, filtered);
+}
+
+// ========================
+// SKILL REQUESTS (COMMUNITY WANTED BOARD)
+// ========================
+
+export async function getSkillRequests(): Promise<SkillRequest[]> {
+  return getLocalItem<SkillRequest[]>(STORAGE_KEYS.REQUESTS, INITIAL_SKILL_REQUESTS);
+}
+
+export async function createSkillRequest(
+  data: Omit<SkillRequest, 'id' | 'createdAt' | 'responsesCount' | 'status'>
+): Promise<SkillRequest> {
+  const newReq: SkillRequest = {
+    ...data,
+    id: `req-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    responsesCount: 0,
+    status: 'open',
+    createdAt: new Date().toISOString(),
+  };
+
+  const requests = await getSkillRequests();
+  requests.unshift(newReq);
+  setLocalItem(STORAGE_KEYS.REQUESTS, requests);
+  sounds.playSuccess();
+  return newReq;
+}
+
+export async function deleteSkillRequest(id: string): Promise<void> {
+  const requests = await getSkillRequests();
+  const filtered = requests.filter((r) => r.id !== id);
+  setLocalItem(STORAGE_KEYS.REQUESTS, filtered);
+}
+
+// ========================
+// SKILL CIRCLES (NEIGHBORHOOD HUBS)
+// ========================
+
+export async function getSkillCircles(): Promise<SkillCircle[]> {
+  return getLocalItem<SkillCircle[]>(STORAGE_KEYS.CIRCLES, INITIAL_SKILL_CIRCLES);
+}
+
+export async function toggleJoinCircle(circleId: string): Promise<boolean> {
+  const circles = await getSkillCircles();
+  const idx = circles.findIndex((c) => c.id === circleId);
+  if (idx === -1) return false;
+
+  const circle = circles[idx];
+  const willJoin = !circle.joined;
+  circle.joined = willJoin;
+  circle.membersCount += willJoin ? 1 : -1;
+  setLocalItem(STORAGE_KEYS.CIRCLES, circles);
+  sounds.playPop();
+  return willJoin;
 }
 
 // ========================
@@ -280,6 +369,11 @@ export async function createBooking(
     ...bookingData,
     id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
     status: 'pending',
+    meetingLink: bookingData.mode === 'in-person' ? undefined : `https://meet.skillconnect.local/room-${Math.random().toString(36).substr(2, 6)}`,
+    meetingVenue: bookingData.meetingVenue || 'Designated Community Center / Park Pavilion',
+    sessionNotes: bookingData.isBarterExchange
+      ? `Mutual Barter Agreement: Proposing to exchange ${bookingData.proposedBarterSkill || 'reciprocal mentorship'} for this session.`
+      : 'Standard free community learning session.',
     createdAt: new Date().toISOString(),
   };
 
@@ -293,6 +387,7 @@ export async function createBooking(
 
   existingBookings.unshift(newBooking);
   setLocalItem(STORAGE_KEYS.BOOKINGS, existingBookings);
+  sounds.playSuccess();
 
   // Notify the teacher about new booking request
   await createNotification({
@@ -330,6 +425,7 @@ export async function updateBookingStatus(
   }
 
   setLocalItem(STORAGE_KEYS.BOOKINGS, bookings);
+  sounds.playChime();
 
   // Send relevant notification
   if (newStatus === 'accepted') {
@@ -349,7 +445,6 @@ export async function updateBookingStatus(
       link: '/explore',
     });
   } else if (newStatus === 'completed') {
-    // Notify both learner and teacher
     await createNotification({
       userId: b.learnerId,
       title: 'Session Marked Completed 🎓',
@@ -426,6 +521,7 @@ export async function createReview(
 
   reviews.unshift(newReview);
   setLocalItem(STORAGE_KEYS.REVIEWS, reviews);
+  sounds.playSuccess();
 
   // Mark booking as reviewed
   const bookings = await getBookings();
@@ -445,6 +541,7 @@ export async function createReview(
     users[teacherIdx].rating = Math.round(avgRating * 10) / 10;
     users[teacherIdx].reviewCount = teacherReviews.length;
     users[teacherIdx].completedSessions = (users[teacherIdx].completedSessions || 0) + 1;
+    users[teacherIdx].totalHoursExchanged = (users[teacherIdx].totalHoursExchanged || 10) + 2;
     setLocalItem(STORAGE_KEYS.USERS, users);
   }
 
@@ -518,6 +615,7 @@ export async function createNotification(
   const all = getLocalItem<Notification[]>(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
   all.unshift(newNotif);
   setLocalItem(STORAGE_KEYS.NOTIFICATIONS, all);
+  sounds.playChime();
 }
 
 export async function markNotificationAsRead(id: string): Promise<void> {
@@ -569,6 +667,7 @@ export async function sendMessage(
   const all = await getMessages();
   all.push(newMsg);
   setLocalItem(STORAGE_KEYS.MESSAGES, all);
+  sounds.playPop();
 
   await createNotification({
     userId: msgData.receiverId,

@@ -9,6 +9,7 @@ import {
   deleteSkill,
 } from '../services/storageService';
 import { Badge } from '../components/common/Badge';
+import { SessionRoomModal } from '../components/skills/SessionRoomModal';
 import { EmptyState } from '../components/common/EmptyState';
 import {
   CalendarCheck,
@@ -24,6 +25,7 @@ import {
   Trash2,
   Users,
   Star,
+  Video,
 } from 'lucide-react';
 
 interface MyTeachingSessionsPageProps {
@@ -40,6 +42,7 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
 
   const [mySkills, setMySkills] = useState<Skill[]>([]);
   const [incomingBookings, setIncomingBookings] = useState<Booking[]>([]);
+  const [activeWorkspaceBooking, setActiveWorkspaceBooking] = useState<Booking | null>(null);
 
   const loadData = async () => {
     if (!currentUser) return;
@@ -100,7 +103,6 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
 
   const pendingRequests = incomingBookings.filter((b) => b.status === 'pending');
   const activeConfirmedBookings = incomingBookings.filter((b) => b.status === 'accepted');
-  const completedTeachingBookings = incomingBookings.filter((b) => b.status === 'completed');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
@@ -140,7 +142,7 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
         </div>
 
         {pendingRequests.length === 0 ? (
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 text-center text-xs text-slate-400">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 text-center text-xs text-slate-400">
             No pending booking requests right now. New requests will appear here for your confirmation.
           </div>
         ) : (
@@ -148,13 +150,13 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
             {pendingRequests.map((b) => (
               <div
                 key={b.id}
-                className="bg-white rounded-2xl p-6 border-2 border-amber-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="bg-white rounded-3xl p-6 border-2 border-amber-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
                 <div className="flex items-start gap-4">
                   <img
                     src={b.learnerAvatar}
                     alt={b.learnerName}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200 shrink-0"
+                    className="w-13 h-13 rounded-full object-cover border border-slate-200 shrink-0"
                   />
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -219,7 +221,7 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
         </h2>
 
         {activeConfirmedBookings.length === 0 ? (
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 text-center text-xs text-slate-400">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 text-center text-xs text-slate-400">
             No confirmed upcoming teaching sessions on the calendar.
           </div>
         ) : (
@@ -227,13 +229,13 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
             {activeConfirmedBookings.map((b) => (
               <div
                 key={b.id}
-                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3.5">
                   <img
                     src={b.learnerAvatar}
                     alt={b.learnerName}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0"
+                    className="w-11 h-11 rounded-full object-cover border border-slate-200 shrink-0"
                   />
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">
@@ -247,7 +249,15 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => onNavigate('messages')}
+                    onClick={() => setActiveWorkspaceBooking(b)}
+                    className="px-3.5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Session Room</span>
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate('messages', b.learnerId)}
                     className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
@@ -288,7 +298,7 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
             {mySkills.map((sk) => (
               <div
                 key={sk.id}
-                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between"
+                className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -335,6 +345,13 @@ export const MyTeachingSessionsPage: React.FC<MyTeachingSessionsPageProps> = ({
           </div>
         )}
       </div>
+
+      {/* Session Workspace Modal */}
+      <SessionRoomModal
+        booking={activeWorkspaceBooking}
+        isOpen={Boolean(activeWorkspaceBooking)}
+        onClose={() => setActiveWorkspaceBooking(null)}
+      />
     </div>
   );
 };

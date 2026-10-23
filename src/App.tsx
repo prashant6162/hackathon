@@ -13,6 +13,8 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ExploreSkillsPage } from './pages/ExploreSkillsPage';
+import { CommunityRequestsPage } from './pages/CommunityRequestsPage';
+import { SkillCirclesPage } from './pages/SkillCirclesPage';
 import { SkillDetailPage } from './pages/SkillDetailPage';
 import { CreateSkillPage } from './pages/CreateSkillPage';
 import { MyEnrollmentsPage } from './pages/MyEnrollmentsPage';
@@ -108,6 +110,12 @@ export const App: React.FC = () => {
             onEnrollSkill={handleEnrollSkill}
           />
         );
+
+      case 'requests':
+        return <CommunityRequestsPage onNavigate={navigate} />;
+
+      case 'circles':
+        return <SkillCirclesPage onNavigate={navigate} />;
 
       case 'skill-detail':
         return (
